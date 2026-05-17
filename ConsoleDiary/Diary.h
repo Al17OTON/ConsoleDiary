@@ -17,6 +17,7 @@ private:
 public:
 	diary(int id, const string& date, const string& weather, const string& title, const string& content);
 	diary(const vector<uint8_t>& buf);
+	diary(const vector<string>& fields);
 
 	int get_id() const;
 	string get_date() const;
@@ -36,5 +37,6 @@ public:
 
 	bool operator < (const diary& o) const;
 
-	vector<uint8_t> serialize_diary() const;
+	vector<uint8_t> serialize_diary_binary() const;
+	vector<string> serialize_diary_csv() const;
 };

@@ -54,5 +54,9 @@ void controller::remove_diary(repository& repo)
 
 void controller::save_diaries(const repository& repo)
 {
-    repo.save_diaries();
+    int select;
+	cout << "저장 형식을 선택하세요.\n1. Binary\n2. CSV\n선택 : ";
+    cin >> select;
+
+	select == 1 ? repo.save_diaries_binary() : repo.save_diaries_csv();
 }

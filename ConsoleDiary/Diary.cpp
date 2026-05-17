@@ -22,6 +22,16 @@ diary::diary(const vector<uint8_t>& buf)
 	m_is_delete = false;
 }
 
+diary::diary(const vector<string>& fields)
+{
+	m_id = std::stoi(fields[0]);
+	m_date = fields[1];
+	m_weather = fields[2];
+	m_title = fields[3];
+	m_content = fields[4];
+	m_is_delete = false;
+}
+
 int diary::get_id() const 
 {
 	return m_id;
@@ -92,7 +102,7 @@ bool diary::operator<(const diary& o) const
 	return this->m_id < o.m_id;
 }
 
-vector<uint8_t> diary::serialize_diary() const 
+vector<uint8_t> diary::serialize_diary_binary() const 
 {
 	vector<uint8_t> buf;
 
@@ -103,4 +113,12 @@ vector<uint8_t> diary::serialize_diary() const
 	util::write_bytes(buf, m_content);
 
 	return buf;
+}
+
+vector<string> diary::serialize_diary_csv() const
+{
+	return
+	{
+		std::to_string(m_id), m_date, m_weather, m_title, m_content
+	};
 }

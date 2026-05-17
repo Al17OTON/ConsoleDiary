@@ -6,7 +6,17 @@
 repository::repository() 
 {
 	cout << "Repository »ý¼º \n";
-	deserialize_diaries(reader::load());
+	vector<vector<uint8_t>> load_binary = reader::load_binary();
+	vector<vector<string>> load_csv = reader::load_scv();
+	if (!load_csv.empty())
+	{
+		deserialize_diaries_csv(reader::load_scv());
+	}
+	else
+	{
+		deserialize_diaries_binary(reader::load_binary());
+	}
+	
 }
 
 repository::~repository() 
@@ -86,9 +96,14 @@ void repository::erase_diary_by_id(int id)
 	m_diaries[id].set_is_delete();
 }
 
-void repository::save_diaries() const 
+void repository::save_diaries_binary() const 
 {
-	writer::save(serialize_diaries());
+	writer::save_binary(serialize_diaries_binary());
+}
+
+void repository::save_diaries_csv() const
+{
+	writer::save_csv(serialize_diaries_csv());
 }
 
 int repository::get_size() const 
@@ -96,21 +111,41 @@ int repository::get_size() const
 	return m_diaries.size();
 }
 
-vector<vector<uint8_t>> repository::serialize_diaries() const 
+vector<vector<uint8_t>> repository::serialize_diaries_binary() const 
 {
 	vector<vector<uint8_t>> result;
 	for (int i = 0; i < m_diaries.size(); ++i) 
 	{
 		if (m_diaries[i].get_is_delete()) continue;
-		result.push_back(m_diaries[i].serialize_diary());
+		result.push_back(m_diaries[i].serialize_diary_binary());
 	}
 	return result;
 }
 
-void repository::deserialize_diaries(const vector<vector<uint8_t>>& chunks) 
+void repository::deserialize_diaries_binary(const vector<vector<uint8_t>>& chunks) 
 {
 	m_diaries.clear();
 	for (int i = 0; i < chunks.size(); ++i) 
+	{
+		m_diaries.push_back(chunks[i]);
+	}
+}
+
+vector<vector<string>> repository::serialize_diaries_csv() const
+{
+	vector<vector<string>> result;
+	for (int i = 0; i < m_diaries.size(); ++i)
+	{
+		if (m_diaries[i].get_is_delete()) continue;
+		result.push_back(m_diaries[i].serialize_diary_csv());
+	}
+	return result;
+}
+
+void repository::deserialize_diaries_csv(const vector<vector<string>>& chunks)
+{
+	m_diaries.clear();
+	for (int i = 0; i < chunks.size(); ++i)
 	{
 		m_diaries.push_back(chunks[i]);
 	}

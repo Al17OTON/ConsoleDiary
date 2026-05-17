@@ -28,9 +28,12 @@ public:
 	void update_diary(int id, const string& date, const string& weather, const string& title, const string& content);
 	void erase_diary_by_id(int id);
 
-	void save_diaries() const;
+	void save_diaries_binary() const;
+	void save_diaries_csv() const;
 	int get_size() const;
 
-	vector<vector<uint8_t>> serialize_diaries() const;
-	void deserialize_diaries(const vector<vector<uint8_t>>& chunks);
+	vector<vector<uint8_t>> serialize_diaries_binary() const;
+	void deserialize_diaries_binary(const vector<vector<uint8_t>>& chunks);
+	vector<vector<string>> serialize_diaries_csv() const;
+	void deserialize_diaries_csv(const vector<vector<string>>& chunks);
 };

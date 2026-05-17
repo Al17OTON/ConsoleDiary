@@ -1,18 +1,64 @@
 #include "Writer.h"
 #include "Config.h"
 #include <fstream>
+#include <iostream>
 
-void writer::save(const vector<vector<uint8_t>> chunks) 
+string writer::escape_csv(const string& field)
 {
-    std::ofstream ofs(FILE_PATH, std::ios::binary);
+    // 특수문자가 없으면 그대로 반환
+    bool needs_quote = field.find_first_of(",\"\n\r") != string::npos;
+    if (!needs_quote)
+        return field;
+
+    std::string result;
+    result.reserve(field.size() + 2);
+    result += '"';
+    for (char c : field)
+    {
+        if (c == '"')
+            result += '"'; // " -> "" 이스케이프
+        result += c;
+    }
+    result += '"';
+    cout << result << endl;
+    return result;
+}
+
+void writer::save_binary(const vector<vector<uint8_t>> chunks)
+{
+    ofstream file_stream(BINARY_FILE_PATH, ios::binary);
 
     size_t count = chunks.size();
-    ofs.write(reinterpret_cast<const char*>(&count), sizeof(count));
+    file_stream.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
     for (const auto& chunk : chunks) 
     {
         size_t size = chunk.size();
-        ofs.write(reinterpret_cast<const char*>(&size), sizeof(size));
-        ofs.write(reinterpret_cast<const char*>(chunk.data()), size);
+        file_stream.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        file_stream.write(reinterpret_cast<const char*>(chunk.data()), size);
+    }
+}
+
+void writer::save_csv(const vector<vector<string>>& chunks)
+{
+    ofstream file_stream(CSV_FILE_PATH, ios::out | ios::trunc);
+
+    if (!file_stream.is_open()) 
+    {
+		cout << "Failed to open file for writing: " << CSV_FILE_PATH << endl;
+        return;
+    }
+
+    for (int i = 0; i < chunks.size(); ++i) 
+    {
+		for (int j = 0; j < chunks[i].size(); ++j)
+		{
+            if (j > 0) 
+            {
+                file_stream << ',';
+            }
+            file_stream << escape_csv(chunks[i][j]);
+		}
+		file_stream << '\n';
     }
 }
