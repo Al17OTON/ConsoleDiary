@@ -20,7 +20,6 @@ string writer::escape_csv(const string& field)
         result += c;
     }
     result += '"';
-    cout << result << endl;
     return result;
 }
 

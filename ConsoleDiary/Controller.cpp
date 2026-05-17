@@ -6,13 +6,13 @@ void controller::create_diary(repository& repo)
 {
     string date, weather, title, content;
     cout << "제목 : ";
-    cin >> title;
+    getline(cin, title);
     cout << "날짜 : ";
-    cin >> date;
+    getline(cin, date);
     cout << "날씨 : ";
-    cin >> weather;
+    getline(cin, weather);
     cout << "내용 : ";
-    cin >> content;
+    getline(cin, content);
 
     repo.insert_diary(date, weather, title, content);
 }
@@ -33,13 +33,13 @@ void controller::update_diary(repository& repo)
     string date, weather, title, content;
 
     cout << "제목 : ";
-    cin >> title;
+    getline(cin, title);
     cout << "날짜 : ";
-    cin >> date;
+    getline(cin, date);
     cout << "날씨 : ";
-    cin >> weather;
+    getline(cin, weather);
     cout << "내용 : ";
-    cin >> content;
+    getline(cin, content);
 
     repo.update_diary(id, date, weather, title, content);
 }
