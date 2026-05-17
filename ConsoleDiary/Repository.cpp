@@ -5,7 +5,6 @@
 
 repository::repository() 
 {
-	cout << "Repository »ý¼º \n";
 	vector<vector<uint8_t>> load_binary = reader::load_binary();
 	vector<vector<string>> load_csv = reader::load_scv();
 	if (!load_csv.empty())
@@ -21,15 +20,24 @@ repository::repository()
 
 repository::~repository() 
 {
-	cout << "Repository ¼Ò¸êÀÚ\n";
-	//save();  // Á¾·á ½Ã ÀÚµ¿ ÀúÀå
+	//save();
 }
 
-repository& repository::get_instance() 
-{
-	static repository instance;		// meyer's singleton
+repository* repository::m_instance = nullptr;
 
-	return instance;
+repository* repository::get_instance()
+{
+	if (m_instance == nullptr)
+	{
+		m_instance = new repository();
+	}
+	return m_instance;
+}
+
+void repository::delete_instance()
+{
+	delete m_instance;
+	m_instance = nullptr;
 }
 
 void repository::insert_diary(const diary& new_diary) 
@@ -63,7 +71,7 @@ void repository::update_diary(const diary& new_diary)
 {
 	if (!check_id_exist(new_diary.get_id()))
 	{
-		cout << "Àß¸øµÈ ¾ÆÀÌµðÀÔ´Ï´Ù\n";
+		cout << "ìž˜ëª»ëœ ID ìž…ë‹ˆë‹¤.\n";
 		return;
 	}
 	m_diaries[new_diary.get_id()].set_date(new_diary.get_date());
@@ -76,7 +84,7 @@ void repository::update_diary(int id, const string& date, const string& weather,
 {
 	if (!check_id_exist(id)) 
 	{
-		cout << "Àß¸øµÈ ¾ÆÀÌµðÀÔ´Ï´Ù\n";
+		cout << "ìž˜ëª»ëœ ID ìž…ë‹ˆë‹¤.\n";
 		return;
 	}
 	diary change(id, date, weather, title, content);
@@ -90,7 +98,7 @@ void repository::erase_diary_by_id(int id)
 {
 	if (!check_id_exist(id)) 
 	{
-		cout << "Àß¸øµÈ ¾ÆÀÌµðÀÔ´Ï´Ù\n";
+		cout << "ìž˜ëª»ëœ ID ìž…ë‹ˆë‹¤.\n";
 		return;
 	}
 	m_diaries[id].set_is_delete();
@@ -153,7 +161,7 @@ void repository::deserialize_diaries_csv(const vector<vector<string>>& chunks)
 
 int repository::generate_id() const 
 {
-	return m_diaries.empty() ? 0 :(--m_diaries.end())->get_id() + 1; // ÀÓ½Ã
+	return m_diaries.empty() ? 0 :(--m_diaries.end())->get_id() + 1;
 }
 
 bool repository::check_id_exist(int id) const 

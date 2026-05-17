@@ -9,15 +9,15 @@ using namespace std;
 
 int main()
 {
-    repository& repo = repository::get_instance();
+    repository* repo = repository::get_instance();
     bool flag = true;
     while (flag) {
         system("cls");
         int input;
-        viewer::show_diaries(repo);
-        viewer::show_inputs(repo);
+        viewer::show_diaries(*repo);
+        viewer::show_inputs(*repo);
 
-        if (!(cin >> input)) 
+        if (!(cin >> input))
         {
             // cin 실패 상태 초기화
             cin.clear();
@@ -28,34 +28,34 @@ int main()
         // 버퍼에 남은 개행 제거
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        switch(input) 
+        switch(input)
         {
-            case 1: 
+            case 1:
             {
-                controller::read_diary(repo);
+                controller::read_diary(*repo);
                 break;
             }
-            case 2: 
+            case 2:
             {
-                controller::create_diary(repo);
+                controller::create_diary(*repo);
                 break;
             }
-            case 3: 
+            case 3:
             {
-                controller::update_diary(repo);
+                controller::update_diary(*repo);
                 break;
             }
-            case 4: 
+            case 4:
             {
-                controller::remove_diary(repo);
+                controller::remove_diary(*repo);
                 break;
             }
-            case 5: 
+            case 5:
             {
-                controller::save_diaries(repo);
+                controller::save_diaries(*repo);
                 break;
             }
-            case 6: 
+            case 6:
             {
                 flag = false;
                 break;
@@ -64,4 +64,6 @@ int main()
 
         system("pause");
     }
+
+    repository::delete_instance();
 }
