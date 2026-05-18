@@ -76,6 +76,11 @@ bool diary::get_is_delete() const
 	return m_is_delete;
 }
 
+time_t diary::get_timestamp() const
+{
+	return m_timestamp;
+}
+
 void diary::set_date(const string& date) 
 {
 	this->m_date = date;

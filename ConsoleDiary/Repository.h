@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <set>
 #include "Diary.h"
 
 using namespace std;
@@ -7,7 +8,7 @@ using namespace std;
 class repository 
 {
 private:
-	vector<diary> m_diaries;
+	set<diary> m_diaries;
 	repository();
 	~repository();
 
