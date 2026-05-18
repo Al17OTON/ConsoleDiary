@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <chrono>
+#include <ctime>
 
 using namespace std;
 
@@ -13,11 +13,12 @@ private:
 	string m_weather;			// 날씨
 	string m_title;				// 제목
 	string m_content;			// 내용
-	bool m_is_delete;				// 삭제 표시
-	chrono::system_clock::time_point m_timestamp;
+	bool m_is_delete;			// 삭제 표시
+	time_t m_timestamp;
 
 public:
 	diary(int id, const string& date, const string& weather, const string& title, const string& content);
+	diary(int id, const string& date, const string& weather, const string& title, const string& content, time_t timestamp);
 	diary(const vector<uint8_t>& buf);
 	diary(const vector<string>& fields);
 
@@ -27,7 +28,7 @@ public:
 	string get_title() const;
 	string get_content() const;
 	bool get_is_delete() const;
-	chrono::system_clock::time_point get_timestamp() const;
+	time_t get_timestamp() const;
 
 	void set_date(const string& date);
 	void set_weather(const string& weather);
