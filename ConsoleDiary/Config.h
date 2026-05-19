@@ -1,4 +1,14 @@
 #pragma once
+#include <string>
 
-#define CSV_FILE_PATH "test.csv"
-#define BINARY_FILE_PATH "test.data"
+using namespace std;
+
+class config
+{
+public:
+	static string get_csv_file_path();
+	static string get_binary_file_path();
+
+private:
+	static string m_file_name;
+};

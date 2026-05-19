@@ -2,6 +2,9 @@
 #include "Viewer.h"
 #include <iostream>
 
+// TODO : 구조체 기반 입력으로 변경
+// 중복 코드를 없애기 위해 repositoty에서 구조체의 id값을 기반으로 스마트하게 처리
+// 이미 있는 id -> update, 없는 id -> create
 void controller::create_diary(repository& repo) 
 {
     string date, weather, title, content;

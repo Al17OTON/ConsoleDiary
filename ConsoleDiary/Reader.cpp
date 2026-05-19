@@ -50,12 +50,13 @@ vector<string> reader::parse_row(const string& line)
         }
     }
     fields.push_back(field); // 마지막 필드
+
     return fields;
 }
 
 vector<vector<uint8_t>> reader::load_binary()
 {
-    ifstream file_stream(BINARY_FILE_PATH, ios::binary);
+    ifstream file_stream(config::get_binary_file_path(), ios::binary);
 
     if (!file_stream.is_open()) 
     {
@@ -64,8 +65,8 @@ vector<vector<uint8_t>> reader::load_binary()
 
     size_t count;
     file_stream.read(reinterpret_cast<char*>(&count), sizeof(count));
-
     vector<vector<uint8_t>> chunks(count);
+
     for (auto& chunk : chunks) 
     {
         size_t size;
@@ -79,23 +80,30 @@ vector<vector<uint8_t>> reader::load_binary()
 vector<vector<string>> reader::load_scv()
 {
     vector<vector<string>> result;
-    ifstream file_stream(CSV_FILE_PATH);
+    ifstream file_stream(config::get_csv_file_path());
+
 	if (!file_stream.is_open())
 	{
         return result;
 	}
 
     string line;
+
     while (getline(file_stream, line))
     {
         // Windows CRLF 대응
         if (!line.empty() && line.back() == '\r')
+        {
             line.pop_back();
+        }
 
         if (line.empty())
+        {
             continue;
+        }
 
         result.push_back(parse_row(line));
     }
+
     return result;
 }

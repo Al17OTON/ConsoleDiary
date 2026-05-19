@@ -7,30 +7,34 @@ using namespace std;
 
 class diary 
 {
-private:
-	int m_id;					// 고유 식별자
-	string m_date;				// 작성 일자
-	string m_weather;			// 날씨
-	string m_title;				// 제목
-	string m_content;			// 내용
-	bool m_is_delete;			// 삭제 표시
-	time_t m_timestamp;
-
 public:
+
+	// TODO : 구조체 기반 생성자로 변경하기
+	struct diary_data
+	{
+		int m_id;
+		time_t m_date;
+		char m_weather[16];		// 5글자
+		char m_title[64];		// 21글자
+		char m_content[2048];	// 682글자
+	};
+
+	diary(const diary_data& data);
+
 	diary(int id, const string& date, const string& weather, const string& title, const string& content);
 	diary(int id, const string& date, const string& weather, const string& title, const string& content, time_t timestamp);
 	diary(const vector<uint8_t>& buf);
 	diary(const vector<string>& fields);
 
 	int get_id() const;
-	string get_date() const;
+	time_t get_date() const;
 	string get_weather() const;
 	string get_title() const;
 	string get_content() const;
 	bool get_is_delete() const;
 	time_t get_timestamp() const;
 
-	void set_date(const string& date);
+	void set_date(time_t date);
 	void set_weather(const string& weather);
 	void set_title(const string& title);
 	void set_content(const string& content);
@@ -43,4 +47,14 @@ public:
 
 	vector<uint8_t> serialize_diary_binary() const;
 	vector<string> serialize_diary_csv() const;
+private:
+
+	diary_data m_data;
+	//int m_id;					// 고유 식별자
+	//string m_date;				// 작성 일자
+	//string m_weather;			// 날씨
+	//string m_title;				// 제목
+	//string m_content;			// 내용
+	bool m_is_delete;			// 삭제 표시
+	//time_t m_timestamp;
 };

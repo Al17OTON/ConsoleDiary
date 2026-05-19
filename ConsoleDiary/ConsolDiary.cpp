@@ -11,7 +11,8 @@ int main()
 {
     repository* repo = repository::get_instance();
     bool flag = true;
-    while (flag) {
+    while (flag) 
+    {
         system("cls");
         int input;
         viewer::show_diaries(*repo);

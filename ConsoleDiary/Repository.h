@@ -7,19 +7,6 @@ using namespace std;
 
 class repository 
 {
-private:
-	set<diary> m_diaries;
-	repository();
-	~repository();
-
-	int generate_id() const;
-	bool check_id_exist(int id) const;
-
-	static repository* m_instance;
-
-	repository(const repository&) = delete;
-	repository& operator=(const repository&) = delete;
-
 public:
 	static repository* get_instance();
 	static void delete_instance();
@@ -40,4 +27,17 @@ public:
 	void deserialize_diaries_binary(const vector<vector<uint8_t>>& chunks);
 	vector<vector<string>> serialize_diaries_csv() const;
 	void deserialize_diaries_csv(const vector<vector<string>>& chunks);
+
+private:
+	set<diary> m_diaries;
+	repository();
+	~repository();
+
+	int generate_id() const;
+	bool check_id_exist(int id) const;
+
+	static repository* m_instance;
+
+	repository(const repository&) = delete;
+	repository& operator=(const repository&) = delete;
 };

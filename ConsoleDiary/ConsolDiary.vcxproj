@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="ConsolDiary.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Diary.cpp" />

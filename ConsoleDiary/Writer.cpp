@@ -25,7 +25,13 @@ string writer::escape_csv(const string& field)
 
 void writer::save_binary(const vector<vector<uint8_t>> chunks)
 {
-    ofstream file_stream(BINARY_FILE_PATH, ios::binary);
+    ofstream file_stream(config::get_binary_file_path(), ios::binary);
+
+    if (!file_stream.is_open())
+    {
+        cout << "Failed to open file for writing: " << config::get_binary_file_path() << endl;
+        return;
+    }
 
     size_t count = chunks.size();
     file_stream.write(reinterpret_cast<const char*>(&count), sizeof(count));
@@ -40,11 +46,11 @@ void writer::save_binary(const vector<vector<uint8_t>> chunks)
 
 void writer::save_csv(const vector<vector<string>>& chunks)
 {
-    ofstream file_stream(CSV_FILE_PATH, ios::out | ios::trunc);
+    ofstream file_stream(config::get_csv_file_path(), ios::out | ios::trunc);
 
     if (!file_stream.is_open()) 
     {
-		cout << "Failed to open file for writing: " << CSV_FILE_PATH << endl;
+		cout << "Failed to open file for writing: " << config::get_csv_file_path() << endl;
         return;
     }
 

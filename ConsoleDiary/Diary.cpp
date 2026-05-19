@@ -3,13 +3,13 @@
 
 diary::diary(int id, const string& date, const string& weather, const string& title, const string& content) 
 {
-	this->m_id = id;
-	this->m_date = date;
-	this->m_weather = weather;
-	this->m_title = title;
-	this->m_content = content;
-	this->m_is_delete = false;
-	this->m_timestamp = time(nullptr); // 현재 시간으로 타임스탬프 설정
+	m_id = id;
+	m_date = date;
+	m_weather = weather;
+	m_title = title;
+	m_content = content;
+	m_is_delete = false;
+	m_timestamp = time(nullptr); // 현재 시간으로 타임스탬프 설정
 }
 
 diary::diary(int id, const string& date, const string& weather, const string& title, const string& content, time_t timestamp)
@@ -126,6 +126,7 @@ bool diary::operator<(const diary& o) const
 	return this->m_id < o.m_id;
 }
 
+// TODO : 구조체 기반 직렬화로 변경하기
 vector<uint8_t> diary::serialize_diary_binary() const 
 {
 	vector<uint8_t> buf;

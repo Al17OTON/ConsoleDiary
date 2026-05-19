@@ -5,8 +5,8 @@
 
 repository::repository() 
 {
-	vector<vector<uint8_t>> load_binary = reader::load_binary();
 	vector<vector<string>> load_csv = reader::load_scv();
+
 	if (!load_csv.empty())
 	{
 		deserialize_diaries_csv(reader::load_scv());
@@ -15,7 +15,6 @@ repository::repository()
 	{
 		deserialize_diaries_binary(reader::load_binary());
 	}
-	
 }
 
 repository::~repository() 
@@ -176,7 +175,15 @@ void repository::deserialize_diaries_csv(const vector<vector<string>>& chunks)
 
 int repository::generate_id() const 
 {
-	return m_diaries.empty() ? 0 :(--m_diaries.end())->get_id() + 1;
+	//return m_diaries.empty() ? 0 :(--m_diaries.end())->get_id() + 1;
+	if(m_diaries.empty()) 
+	{
+		return 0;
+	}
+	else
+	{
+		return (--m_diaries.end())->get_id() + 1;
+	}
 }
 
 bool repository::check_id_exist(int id) const 
