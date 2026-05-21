@@ -21,23 +21,23 @@ public:
 
 	diary(const diary_data& data);
 
-	diary(int id, const string& date, const string& weather, const string& title, const string& content);
-	diary(int id, const string& date, const string& weather, const string& title, const string& content, time_t timestamp);
-	diary(const vector<uint8_t>& buf);
-	diary(const vector<string>& fields);
+	//diary(int id, const string& date, const string& weather, const string& title, const string& content);
+	//diary(int id, const string& date, const string& weather, const string& title, const string& content, time_t timestamp);
+	//diary(const vector<uint8_t>& buf);
+	//diary(const vector<string>& fields);
 
 	int get_id() const;
 	time_t get_date() const;
-	string get_weather() const;
-	string get_title() const;
-	string get_content() const;
+	const char* get_weather() const;
+	const char* get_title() const;
+	const char* get_content() const;
 	bool get_is_delete() const;
 	time_t get_timestamp() const;
 
-	void set_date(time_t date);
-	void set_weather(const string& weather);
-	void set_title(const string& title);
-	void set_content(const string& content);
+	//void set_date(time_t date);
+	//void set_weather(const char* weather);
+	//void set_title(const char* title);
+	//void set_content(const char* content);
 	void set_is_delete();
 
 	string to_string_short() const;
