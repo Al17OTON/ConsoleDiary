@@ -2,16 +2,25 @@
 #include "Reader.h"
 #include "Writer.h"
 #include <iostream>
+#include <algorithm>
+#include <random>
+#include <sstream>
 
 repository::repository() 
 {
-	vector<vector<string>> load_csv = reader::load_scv();
+	//vector<vector<string>> load_csv = reader::load_scv();
 
-	if (!load_csv.empty())
-	{
-		deserialize_diaries_csv(reader::load_scv());
-	}
-	else
+	//if (!load_csv.empty())
+	//{
+	//	deserialize_diaries_csv(reader::load_scv());
+	//}
+	//else
+	//{
+	//	deserialize_diaries_binary(reader::load_binary());
+	//}
+
+	vector<vector<uint8_t>> load_binary = reader::load_binary();
+	if (!load_binary.empty())
 	{
 		deserialize_diaries_binary(reader::load_binary());
 	}
@@ -20,6 +29,17 @@ repository::repository()
 repository::~repository() 
 {
 	//save();
+}
+
+int repository::generate_id() const
+{
+	// TODO : 더 좋은 id 발급 방식 찾아보기
+	int id = rand() % 100000000;
+	while (check_id_exist(id))
+	{
+		id = rand() % 100000000;
+	}
+	return id;
 }
 
 repository* repository::m_instance = nullptr;
@@ -39,91 +59,51 @@ void repository::delete_instance()
 	m_instance = nullptr;
 }
 
-void repository::insert_diary(const diary& new_diary) 
+void repository::insert_diary(diary::diary_data& data)
 {
-	m_diaries.insert(new_diary);
+	// ID가 지정 안되어있으면 자동으로 생성
+	if (data.m_id == -1)
+	{
+		data.m_id = generate_id();
+	}
+
+	// ID가 이미 존재하면 업데이트, 존재하지 않으면 새로 추가
+	m_diaries[data.m_id] = diary(data);
 }
 
-void repository::insert_diary(const string& date, const string& weather, const string& title, const string& content) 
+diary repository::get_diary_by_id(const int id) const 
 {
-	m_diaries.insert(diary(generate_id(), date, weather, title, content));
-}
-
-diary repository::get_diary_by_id(int id) const 
-{
-	//for (int i = 0; i < m_diaries.size(); ++i) 
-	//{
-	//	if (m_diaries[i].get_id() == id) 
-	//	{
-	//		return m_diaries[i];
-	//	}
-	//}
-	//return diary(-1, "", "", "", "");
-
-	set<diary>::iterator iter = m_diaries.find(diary(id, "", "", "", ""));
+	unordered_map<int, diary>::const_iterator iter = m_diaries.find(id);
 	if (iter == m_diaries.end())
 	{
-		return diary(-1, "", "", "", "");
+		return diary(diary::diary_data{ 0, 0, "", "", ""});
 	}
-	return *iter;
+	return iter->second;
 }
 
+// TODO : 다이어리 포인터로 반환하여 복사 비용 줄이기
 vector<diary> repository::get_diaries() const 
 {
-	return vector<diary>(m_diaries.begin(), m_diaries.end());
-}
+	vector<diary> vec;
 
-void repository::update_diary(const diary& new_diary) 
-{
-	if (!check_id_exist(new_diary.get_id()))
-	{
-		cout << "잘못된 ID 입니다.\n";
-		return;
+	for (unordered_map<int, diary>::const_iterator iter = m_diaries.begin(); iter != m_diaries.end(); ++iter)
+	{	
+		vec.push_back(iter->second);
 	}
-	m_diaries.erase(diary(new_diary.get_id(), "", "", "", ""));
-	m_diaries.insert(new_diary);
-	//m_diaries[new_diary.get_id()].set_date(new_diary.get_date());
-	//m_diaries[new_diary.get_id()].set_weather(new_diary.get_weather());
-	//m_diaries[new_diary.get_id()].set_title(new_diary.get_title());
-	//m_diaries[new_diary.get_id()].set_content(new_diary.get_content());
+
+	sort(vec.begin(), vec.end());
+
+	return vec;
 }
 
-void repository::update_diary(int id, const string& date, const string& weather, const string& title, const string& content)
+void repository::erase_diary_by_id(const int id) 
 {
-	if (!check_id_exist(id)) 
-	{
-		cout << "잘못된 ID 입니다.\n";
-		return;
-	}
-	diary change(id, date, weather, title, content, m_diaries.find(diary(id, "", "", "", ""))->get_timestamp());
-	m_diaries.erase(diary(id, "", "", "", ""));
-	m_diaries.insert(change);
-	//m_diaries[id].set_date(date);
-	//m_diaries[id].set_weather(weather);
-	//m_diaries[id].set_title(title);
-	//m_diaries[id].set_content(content);
+	m_diaries.erase(id);
 }
 
-void repository::erase_diary_by_id(int id) 
-{
-	if (!check_id_exist(id)) 
-	{
-		cout << "잘못된 ID 입니다.\n";
-		return;
-	}
-	//m_diaries[id].set_is_delete();
-	set<diary>::iterator iter = m_diaries.find(diary(id, "", "", "", ""));
-	iter->get_is_delete();
-}
-
-void repository::save_diaries_binary() const 
+void repository::save_diaries_binary() const
 {
 	writer::save_binary(serialize_diaries_binary());
-}
-
-void repository::save_diaries_csv() const
-{
-	writer::save_csv(serialize_diaries_csv());
 }
 
 int repository::get_size() const 
@@ -131,67 +111,53 @@ int repository::get_size() const
 	return m_diaries.size();
 }
 
-vector<vector<uint8_t>> repository::serialize_diaries_binary() const 
+vector<vector<uint8_t>> repository::serialize_diaries_binary() const
 {
-	vector<vector<uint8_t>> result;
-	vector<diary> diaries_vec(m_diaries.begin(), m_diaries.end());
-	for (int i = 0; i < diaries_vec.size(); ++i)
+	vector<vector<uint8_t>> chunks;
+	chunks.reserve(m_diaries.size());
+
+	for (unordered_map<int, diary>::const_iterator iter = m_diaries.begin(); iter != m_diaries.end(); ++iter) 
 	{
-		if (diaries_vec[i].get_is_delete()) continue;
-		result.push_back(diaries_vec[i].serialize_diary_binary());
+		chunks.push_back(iter->second.serialize_diary_binary());
 	}
-	return result;
+
+	return chunks;
 }
 
-void repository::deserialize_diaries_binary(const vector<vector<uint8_t>>& chunks) 
+void repository::deserialize_diaries_binary(const vector<vector<uint8_t>>& chunks)
 {
 	m_diaries.clear();
-	for (int i = 0; i < chunks.size(); ++i) 
+	for(int i = 0; i < chunks.size(); ++i) 
 	{
-		m_diaries.insert(chunks[i]);
+		diary::diary_data data;
+		memcpy(&data, chunks[i].data(), sizeof(diary::diary_data));
+		m_diaries[data.m_id] = diary(data);
 	}
 }
 
-vector<vector<string>> repository::serialize_diaries_csv() const
-{
-	vector<vector<string>> result;
-	vector<diary> diaries_vec(m_diaries.begin(), m_diaries.end());
-	for (int i = 0; i < diaries_vec.size(); ++i)
-	{
-		if (diaries_vec[i].get_is_delete()) continue;
-		result.push_back(diaries_vec[i].serialize_diary_csv());
-	}
-	return result;
-}
+//char* repository::generate_uuid() const 
+//{
+//	static random_device rd;
+//	static mt19937 gen(rd());
+//	static uniform_int_distribution<uint32_t> dist(0, 15);
+//	static uniform_int_distribution<uint32_t> dist2(8, 11);
+//
+//	char buf[37];
+//	auto r = [&]() { return dist(gen); };
+//
+//	snprintf(buf, sizeof(buf),
+//		"%x%x%x%x%x%x%x%x-%x%x%x%x-4%x%x%x-%x%x%x%x-%x%x%x%x%x%x%x%x%x%x%x%x",
+//		r(), r(), r(), r(), r(), r(), r(), r(),
+//		r(), r(), r(), r(),
+//		r(), r(), r(),
+//		dist2(gen), r(), r(), r(),
+//		r(), r(), r(), r(), r(), r(), r(), r(), r(), r(), r(), r()
+//	);
+//
+//	return buf;
+//}
 
-void repository::deserialize_diaries_csv(const vector<vector<string>>& chunks)
+bool repository::check_id_exist(const int id) const 
 {
-	m_diaries.clear();
-	for (int i = 0; i < chunks.size(); ++i)
-	{
-		m_diaries.insert(chunks[i]);
-	}
-}
-
-int repository::generate_id() const 
-{
-	//return m_diaries.empty() ? 0 :(--m_diaries.end())->get_id() + 1;
-	if(m_diaries.empty()) 
-	{
-		return 0;
-	}
-	else
-	{
-		return (--m_diaries.end())->get_id() + 1;
-	}
-}
-
-bool repository::check_id_exist(int id) const 
-{
-	//for (int i = 0; i < m_diaries.size(); ++i) 
-	//{
-	//	if (m_diaries[i].get_id() == id) return true;
-	//}
-	//return false;
-	return m_diaries.find(diary(id, "", "", "", "")) != m_diaries.end();
+	return m_diaries.find(id) != m_diaries.end();
 }
